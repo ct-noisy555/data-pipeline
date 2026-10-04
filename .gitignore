@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+.env
+__pycache__/
+*.pyc
+.DS_Store
+data/*.csv
+airflow/logs/
