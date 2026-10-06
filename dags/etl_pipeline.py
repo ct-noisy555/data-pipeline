@@ -21,7 +21,7 @@ def send_aggregated_to_kafka():
             o.order_id,
             o.customer_id,
             o.order_status,
-            0.order_purchase_timestamp,
+            o.order_purchase_timestamp,
             c.customer_city,
             c.customer_state
         from orders o
