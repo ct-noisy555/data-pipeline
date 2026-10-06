@@ -41,12 +41,13 @@ def send_aggregated_to_kafka():
 
 def consume_kafka_load_clickhouse():
     consumer = KafkaConsumer(
+        'orders_aggregated_topic',
         bootstrap_servers=['kafka:29092'],
         auto_offset_reset='earliest',
         consumer_timeout_ms=15000,
         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
     )
-    client = Client(host='clickhouse', port=9000)
+    client = Client(host='clickhouse', port=9000, user='default', password='clickhouse')
     batch=[]
 
     for message in consumer:
@@ -55,13 +56,14 @@ def consume_kafka_load_clickhouse():
             r['order_id'],
             r['customer_id'],
             r['order_status'],
-            r['order_purchase_timestamp'],
-            r['costumer_city'],
+            datetime.strptime(r['order_purchase_timestamp'], '%Y-%m-%d %H:%M:%S'),
+            r['customer_city'],
             r['customer_state']
         ))
 
     if batch:
         client.execute(
+            'insert into orders_aggregated (order_id, customer_id, order_status, order_purchase_timestamp, customer_city, customer_state) values',   
             batch
         )
         print(f"Loaded {len(batch)} rows to Clickhouse")
